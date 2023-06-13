@@ -1,5 +1,6 @@
 import numpy as np
 import random as rd
+import matplotlib.pyplot as plt
 
 #the considered space has a width of 90, a length of 90
 length = 90
@@ -87,3 +88,11 @@ def gamma(AP_index,user_index,application_index):
 # AP b, user k and for application f using bandwidth Wf at scheduling frame t
 def r(AP_index,user_index,application_index):
     return W*np.log2(1+gamma(AP_index,user_index,application_index))
+
+plt.title("APs and Users Position")
+AP_x,AP_y=zip(*list_of_AP)
+User_x,User_y=zip(*list_of_users)
+plt.scatter(AP_x,AP_y,cmap='hot')
+plt.scatter(User_x,User_y,cmap='hot')
+plt.grid()
+plt.show()
