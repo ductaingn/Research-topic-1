@@ -29,7 +29,7 @@ list_of_AP = []
 #the position of each AP is the constant
 for i in range(NUM_OF_AP): 
     list_of_AP.append((i % 3 * length_of_area + length_of_area / 2 , (i - i%3) / 3 * length_of_area + length_of_area / 2))
-    print(list_of_AP[i])
+    # print(list_of_AP[i])
 
 #the function calculates the distance to the nearest AP
 def distance_to_nearest_AP(pos_of_user, list_of_AP):
@@ -89,6 +89,7 @@ def gamma(AP_index,user_index,application_index):
 def r(AP_index,user_index,application_index):
     return W*np.log2(1+gamma(AP_index,user_index,application_index))
 
+<<<<<<< HEAD
 plt.title("APs and Users Position")
 AP_x,AP_y=zip(*list_of_AP)
 User_x,User_y=zip(*list_of_users)
@@ -96,3 +97,24 @@ plt.scatter(AP_x,AP_y,cmap='hot')
 plt.scatter(User_x,User_y,cmap='hot')
 plt.grid()
 plt.show()
+=======
+#the value of r_bkf is immediate
+#suppose in the real world, we have 10000 frames that users have to take action
+#suppose the transmit power not depend on application f of user k -> r_bkf depends on which user k of AP b is?
+#each frame has its r_bkf 
+#Simulating 10000 frames, determine the value of r_bkf in each frame
+list_of_r_from_0_to_t = [[] for i in range(10000)]
+f = open("data_r.txt", "w")
+
+for i in range(10000):
+    for b in range(NUM_OF_AP):
+        for k in range(NUM_OF_USER):
+            r_bkf = r(b, k, application_index=1)
+            f.write(str(r_bkf) + " ")
+            list_of_r_from_0_to_t[i].append(r_bkf)
+        f.writelines("\n")
+    f.writelines("====================================================================================\n")
+f.close()
+
+
+>>>>>>> 94d01c35493a341208efaafc5f4150aad887ddaa
