@@ -14,14 +14,14 @@ length_of_area = length/number_of_area_per_row
 NUM_OF_AP = 9
 #Number of Users
 NUM_OF_USER = 10
-#Transmit Power P = 5dBm 
-P = 5
-#Noise Power sigma^2 = -169dBm/Hz
-SIGMA_SQRT = -169
+#Transmit Power P ~ 5dBm 
+P = pow(10,5/10)
+#Noise Power sigma^2 ~ -169dBm/Hz
+SIGMA_SQR = pow(10,-169/10)
 #Bandwidth W = 10MHz
 W = 10000000
 
-#the list contains the position of APs
+#The list contains positions of APs
 list_of_AP = []
 
 #initialize position of each AP.
@@ -53,23 +53,35 @@ def initialize_users_pos():
         else:
             list_of_users.remove(list_of_users[i])
     return list_of_users
+
+#The list contains positions of users
 list_of_users=initialize_users_pos()
 
+#Path loss model
+def path_loss(distance):
+    return 140.7 + 37.6*(np.log10(distance))
 
-#channel coefficient h = a + b*i
+#Channel coefficient h=h_tilde* 10^(-pathloss/20)
+#h_tilde = (a + b*i)/sqrt(2)
 #in which a and b is random value from a Normal distribution
-def generate_h(mu,sigma):
+def generate_h_tilde(mu,sigma):
     re=np.random.normal(mu,sigma,1)[0]
     im=np.random.normal(mu,sigma,1)[0]
-    h=complex(re,im)
+    h_tilde=complex(re,im)/np.sqrt(2)
+    return h_tilde
+
+def generate_h(user_index):
+    h_tilde=generate_h_tilde(0,1)
+    h=h_tilde* pow(10,-path_loss(distance_to_nearest_AP(list_of_users[user_index],list_of_AP))/20.0)#Nearest AP serves, will change later
     return h
+
 
 #return a matrix of channel coefficient h between user k and AP b
 def initialize_users_h():
     list_of_users_h=np.matrix(np.zeros([NUM_OF_AP,NUM_OF_USER]),dtype=complex)
     for b in range(NUM_OF_AP):
         for k in range (NUM_OF_USER):
-            list_of_users_h[b,k]=generate_h(0,1)
+            list_of_users_h[b,k]=generate_h(k)
     return list_of_users_h
 
 # gamma_bkf (t) is the Signal to Interference-plus-Noise Ratio (SINR)
@@ -77,7 +89,7 @@ def initialize_users_h():
 def gamma(AP_index,user_index,application_index):
     h=initialize_users_h()
     power=pow(abs(h[AP_index,user_index]),2)*P
-    interference_plus_noise=W*SIGMA_SQRT
+    interference_plus_noise=W*SIGMA_SQR
     for b in range(list_of_AP.__len__()):
         if(b!=AP_index):
             interference_plus_noise += pow(abs(h[b,user_index]),2)*P
@@ -104,18 +116,19 @@ plt.show(block=False)
 #suppose the transmit power not depend on application f of user k -> r_bkf depends on which user k of AP b is?
 #each frame has its r_bkf 
 #Simulating 10000 frames, determine the value of r_bkf in each frame
-list_of_r_from_0_to_t = [[] for i in range(100)]
+NUM_OF_FRAME=100000
+list_of_r_from_0_to_t = [[] for i in range(NUM_OF_FRAME)]
 file = open("data_r.txt", "w")
 
-for i in range(100):
-    file.writelines('FRAME START! '.center(200,'=')+"\n")
+for i in range(NUM_OF_FRAME):
+    file.writelines(' FRAME START! '.center(200,'=')+"\n")
     for b in range(NUM_OF_AP):
         for k in range(NUM_OF_USER):
             r_bkf = r(b, k, application_index=1)
-            file.write(f"{str(round(r_bkf,12)): <20}")
+            file.write(f"{str(round(r_bkf,5)): <20}")
             list_of_r_from_0_to_t[i].append(r_bkf)
         file.writelines("\n")
-    file.writelines('END OF FRAME! '.center(200,'=')+"\n\n")
+    file.writelines(' END OF FRAME! '.center(200,'=')+"\n\n")
 
 file.close()
 
