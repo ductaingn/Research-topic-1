@@ -93,8 +93,7 @@ def initialize_users_h():
 
 # gamma_bkf (t) is the Signal to Interference-plus-Noise Ratio (SINR)
 # at user k for the transmit signal from AP b, application f
-def gamma(AP_index,user_index,application_index):
-    h=initialize_users_h()
+def gamma(h,AP_index,user_index,application_index):
     power=pow(abs(h[AP_index,user_index]),2)*P
     interference_plus_noise=W*SIGMA_SQR
     for b in range(list_of_AP.__len__()):
@@ -104,8 +103,8 @@ def gamma(AP_index,user_index,application_index):
 
 #achievable data rate r_bkf (t) for the link between
 # AP b, user k and for application f using bandwidth Wf at scheduling frame t
-def r(AP_index,user_index,application_index):
-    return W*np.log2(1+gamma(AP_index,user_index,application_index))
+def r(h,AP_index,user_index,application_index):
+    return W*np.log2(1+gamma(h,AP_index,user_index,application_index))
 
 
 #Plot APs and Users Position
@@ -123,15 +122,16 @@ plt.show(block=False)
 #suppose the transmit power not depend on application f of user k -> r_bkf depends on which user k of AP b is?
 #each frame has its r_bkf 
 #Simulating 10000 frames, determine the value of r_bkf in each frame
-NUM_OF_FRAME=100000
+NUM_OF_FRAME=100
 list_of_r_from_0_to_t = [[] for i in range(NUM_OF_FRAME)]
 file = open("data_r.txt", "w")
 
 for i in range(NUM_OF_FRAME):
     file.writelines(' FRAME START! '.center(200,'=')+"\n")
+    h=initialize_users_h()
     for b in range(NUM_OF_AP):
         for k in range(NUM_OF_USER):
-            r_bkf = r(b, k, application_index=1)
+            r_bkf = r(h,b, k, application_index=1)
             file.write(f"{str(round(r_bkf,5)): <20}")
             list_of_r_from_0_to_t[i].append(r_bkf)
         file.writelines("\n")
