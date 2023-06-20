@@ -30,6 +30,10 @@ list_of_AP = []
 for i in range(NUM_OF_AP): 
     list_of_AP.append((i % 3 * length_of_area + length_of_area / 2 , (i - i%3) / 3 * length_of_area + length_of_area / 2))
 
+file = open("Research-topic-1\\AP_pos_data.txt", "w")
+for i in range(NUM_OF_AP):
+    file.write(str(list_of_AP[i]) + "\n")
+
 #the function calculates the distance to the nearest AP
 def distance_to_nearest_AP(pos_of_user, list_of_AP):
     min = np.inf
@@ -56,6 +60,9 @@ def initialize_users_pos():
 
 #The list contains positions of users
 list_of_users=initialize_users_pos()
+file = open("Research-topic-1\\user_pos_data.txt", "w")
+for i in range (NUM_OF_USER):
+    file.write(str(list_of_users[i]) + "\n")
 
 #Path loss model
 def path_loss(distance):
