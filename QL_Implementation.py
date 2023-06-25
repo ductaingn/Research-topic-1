@@ -74,17 +74,19 @@ def AP_load(state,achivable_rate):
     return load
 
 #Return a array of app dropped per user
-#If Appilcation k requires a AP that will be overloaded if it serve app k then overload[k]=1
-def check_overload(action,state,achivable_rate_bk):
-    overload=np.array()
-    load=AP_load(state)
+#If Appilcation k requires a AP that will be overloaded if it serve app k then drop[k]=1
+#action_of_user is a row in action matrix 
+#load is the array of each AP's load
+#achivable_rate_bk is the value of achivable_rate[b,k]
+def check_drop(action_of_user,load,achivable_rate_bk):
+    drop=np.array()
     for k in range (NUM_OF_APP):
         load_for_serving=MPAR/achivable_rate_bk
-        if(action[k]==1 and load[k]+load_for_serving>1):
-            overload[k]=1
+        if(load[action_of_user[k]]+load_for_serving>1):
+            drop[k]=1
         else: 
-            overload[k]=0
-    return overload
+            drop[k]=0
+    return drop
 
 def initialize_Q():
     Q = np.matrix(np.zeros(shape=(NUM_OF_AP,NUM_OF_APP)))
