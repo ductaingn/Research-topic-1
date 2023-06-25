@@ -134,7 +134,7 @@ plt.show(block=False)
 #suppose the transmit power not depend on application f of user k -> r_bkf depends on which user k of AP b is?
 #each frame has its r_bkf 
 #Simulating 10000 frames, determine the value of r_bkf in each frame
-NUM_OF_FRAME=100
+NUM_OF_FRAME=1000
 list_of_r_from_0_to_t = [[] for i in range(NUM_OF_FRAME)]
 file = open("data_r.txt", "w")
 
