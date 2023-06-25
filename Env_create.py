@@ -21,18 +21,23 @@ SIGMA_SQR = pow(10,-169/10)
 #Bandwidth W = 10MHz
 W = 10000000
 
-#The list contains positions of APs
-list_of_AP = []
 
 #initialize position of each AP.
 #each AP was located at the central of each area
 #the position of each AP is the constant
-for i in range(NUM_OF_AP): 
-    list_of_AP.append((i % 3 * length_of_area + length_of_area / 2 , (i - i%3) / 3 * length_of_area + length_of_area / 2))
+def initialize_aps_pos():
+    list_of_AP = []
+    for i in range(NUM_OF_AP): 
+        list_of_AP.append((i % 3 * length_of_area + length_of_area / 2 , (i - i%3) / 3 * length_of_area + length_of_area / 2))
+    return list_of_AP
 
-file = open("Research-topic-1\\AP_pos_data.txt", "w")
-for i in range(NUM_OF_AP):
-    file.write(str(list_of_AP[i]) + "\n")
+#The list contains positions of APs
+list_of_AP = initialize_aps_pos()
+
+def write_APs_pos_data(list_of_APs_pos):
+    file = open("Research-topic-1\\AP_pos_data.txt", "w")
+    for i in range(NUM_OF_AP):
+        file.write(str(list_of_APs_pos[i]) + "\n")
 
 #the function calculates the distance to the nearest AP
 def distance_to_nearest_AP(pos_of_user, list_of_AP):
@@ -58,11 +63,18 @@ def initialize_users_pos():
             list_of_users.remove(list_of_users[i])
     return list_of_users
 
+def distance_to_AP(pos_of_user,pos_of_AP):
+    distance = np.sqrt((pos_of_user[0] - pos_of_AP[0]) * (pos_of_user[0] - pos_of_AP[0]) + (pos_of_user[1] - pos_of_AP[1]) * (pos_of_user[1] - pos_of_AP[1]))
+    return distance
+
+
 #The list contains positions of users
 list_of_users=initialize_users_pos()
-file = open("Research-topic-1\\user_pos_data.txt", "w")
-for i in range (NUM_OF_USER):
-    file.write(str(list_of_users[i]) + "\n")
+
+def write_users_pos_data(list_of_users_pos):
+    file = open("Research-topic-1\\user_pos_data.txt", "w")
+    for i in range (NUM_OF_USER):
+        file.write(str(list_of_users_pos[i]) + "\n")
 
 #Path loss model
 def path_loss(distance):
@@ -77,23 +89,23 @@ def generate_h_tilde(mu,sigma):
     h_tilde=complex(re,im)/np.sqrt(2)
     return h_tilde
 
-def generate_h(user_index):
+def generate_h(pos_of_user,pos_of_AP):
     h_tilde=generate_h_tilde(0,1)
-    h=h_tilde* pow(10,-path_loss(distance_to_nearest_AP(list_of_users[user_index],list_of_AP))/20.0)#Nearest AP serves, will change later
+    h=h_tilde* pow(10,-path_loss(distance_to_AP(pos_of_user,pos_of_AP))/20.0)
     return h
 
 
 #return a matrix of channel coefficient h between user k and AP b
-def initialize_users_h():
+def initialize_users_h(list_of_user_pos,list_of_AP_pos):
     list_of_users_h=np.matrix(np.zeros([NUM_OF_AP,NUM_OF_USER]),dtype=complex)
     for b in range(NUM_OF_AP):
         for k in range (NUM_OF_USER):
-            list_of_users_h[b,k]=generate_h(k)
+            list_of_users_h[b,k]=generate_h(list_of_user_pos[k],list_of_AP_pos[b])
     return list_of_users_h
 
 # gamma_bkf (t) is the Signal to Interference-plus-Noise Ratio (SINR)
 # at user k for the transmit signal from AP b, application f
-def gamma(h,AP_index,user_index,application_index):
+def gamma(h,AP_index,user_index):
     power=pow(abs(h[AP_index,user_index]),2)*P
     interference_plus_noise=W*SIGMA_SQR
     for b in range(list_of_AP.__len__()):
@@ -103,8 +115,8 @@ def gamma(h,AP_index,user_index,application_index):
 
 #achievable data rate r_bkf (t) for the link between
 # AP b, user k and for application f using bandwidth Wf at scheduling frame t
-def r(h,AP_index,user_index,application_index):
-    return W*np.log2(1+gamma(h,AP_index,user_index,application_index))
+def r(h,AP_index,user_index):
+    return W*np.log2(1+gamma(h,AP_index,user_index))
 
 
 #Plot APs and Users Position
@@ -128,7 +140,7 @@ file = open("data_r.txt", "w")
 
 for i in range(NUM_OF_FRAME):
     file.writelines(' FRAME START! '.center(200,'=')+"\n")
-    h=initialize_users_h()
+    h=initialize_users_h(list_of_AP_pos=list_of_AP,list_of_user_pos=list_of_users)
     for b in range(NUM_OF_AP):
         for k in range(NUM_OF_USER):
             r_bkf = r(h,b, k, application_index=1)
