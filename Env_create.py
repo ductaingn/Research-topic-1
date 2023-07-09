@@ -143,7 +143,7 @@ for i in range(NUM_OF_FRAME):
     h=initialize_users_h(list_of_AP_pos=list_of_AP,list_of_user_pos=list_of_users)
     for b in range(NUM_OF_AP):
         for k in range(NUM_OF_USER):
-            r_bkf = r(h,b, k, application_index=1)
+            r_bkf = r(h,b, k)
             file.write(f"{str(round(r_bkf,5)): <20}")
             list_of_r_from_0_to_t[i].append(r_bkf)
         file.writelines("\n")
