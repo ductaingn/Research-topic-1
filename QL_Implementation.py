@@ -8,8 +8,9 @@ NUM_OF_USER = 10
 #Number of Applications per User
 NUM_OF_APP = 2
 #Rate Requirement
-R1=6 #Mbps
-R2=3 #Mbps
+#Mbps 
+R = [6 , 3]
+#Mbps
 #Mean Packet Arrival Rate
 MPAR=0.1 #Mbps
 #Learning rate alpha, discount factor beta, decay factor lambda, greedy policy factor epsilon
@@ -30,6 +31,9 @@ def initialize_state_matrix():
 
 #CREATE REWARD 
 #Return a reward array of each user
+#state, action, achivable_rate là toàn bộ các state, action, achivalbe rate của user
+#môi trường sẽ tính toán reward này và trả về cho các user nhận lấy reward tại
+#vị trí cần tìm trong mảng reward
 def reward(state,action,achivable_rate):
     reward=np.array(np.zeros)
     for k in range (NUM_OF_USER):
@@ -37,25 +41,61 @@ def reward(state,action,achivable_rate):
         c2=0
         for f in range (NUM_OF_APP):
             if(not(check_overload(action,state,achivable_rate[state[k,f],k])[f]==1)):
-                c1+=action[k,f]*achivable_rate[state[k,f],k]
-            # else:
-            #     c2+=
+                if(achivable_rate[state[k,f], k][f] < R[f]):
+                    c2 += R[f] / achivable_rate[state[k,f], k][f]
+                else:
+                    c1+=action[k,f]*achivable_rate[state[k,f],k]
+            #else: tìm xem request của user nào bị loại thì cộng thêm reward vào c2
+                #if()
         reward[k]=0.8*c1-0.2*c2
     return reward
 
 
 #CREATE MODEL
 #Action is a NUM_OF_USER*NUM_OF_APP matrix where state[user_index,app_index]=request_ap_index
-def chose_action():
+#mảng action cuối cùng, được trả về sau khi tất cả các user nhận chọn được action
+#truyền vào hàm bảng Q_table và state
+#Bảng Q_table gồm 2 chiều state - action đã được convert sang chỉ số int
+#truy cập vào bảng Q_table bằng chỉ số Q_table[state, action]
+#state là mảng 2 chiều có dạng user - [applications]
+
+def chose_action(state, Q_table):
     action=np.matrix(np.zeros(shape=(NUM_OF_USER,NUM_OF_APP)))
     random_factor=np.random()
     if(random_factor<EPSILON):
         for k in range (NUM_OF_USER):
             for f in range (NUM_OF_APP):
-                action[k,f]=np.random.randint(1,NUM_OF_AP)
-    # else: Chose best action
-        
+                action[k,f]=np.random.randint(0,NUM_OF_AP - 1)     #chỉ số của ap chạy từ 0 -> NUM_OF_AP-1
+    # else: Chose best action    
+    else:
+        #duyệt qua tất cả các user
+        for k in range (NUM_OF_USER):
+            max_index = -9999999999
+            max_Q_value = -99999999999
+            current_state = state[k]
+            current_state_index = convert_to_index[current_state]
+            being_checked_action_index = 0;
+            expected_action = np.matrix(np.zeros(shape=(1, NUM_OF_APP)))
+            # 2 vòng lặp để duyệt tất cả các action có thể chọn
+            for f in range (NUM_OF_APP):
+                for b in range (NUM_OF_AP):
+                    expected_action[f] = b
+                    being_checked_action_index = convert_to_index(expected_action)
+                    # kiểm tra giá trị trong bảng Q_table
+                    if Q_table[being_checked_action_index, being_checked_action_index] > max_Q_value :
+                        max_index = being_checked_action_index
+                        #giá trị chỉ số state(t+1) = chỉ số action(t) do nếu action t được thực hiện
+                        # thì state(t+1) chính là action(t)
+                        # app request tới ap nào thì giá trị tại state mới chính bằng ap đó 
+                        max_Q_value = Q_table[being_checked_action_index, being_checked_action_index]
+            #kết thúc vòng lặp có được chỉ số của action có giá trị Q lớn nhất
+            expected_action = convert_from_index(being_checked_action_index)
+            for f in range (NUM_OF_APP) :
+                action[k, f] = expected_action[f]
     return action
+
+
+
 
 #Return a matrix of achivable rate between each user k and each AP b
 def achivable_rate(h):
@@ -86,16 +126,49 @@ def check_overload(action,state,achivable_rate_bk):
             overload[k]=0
     return overload
 
+
 def initialize_Q():
     Q = np.matrix(np.zeros(shape=(NUM_OF_AP,NUM_OF_APP)))
     return Q
 def update_Q(state,action,gamma):
     return
 
+
 #TRAINING
     #Read from old Q-table
     #Train with new data
-users_positions=env.initialize_users_pos()
-aps_positions=env.initialize_aps_pos()
-state=initialize_state_matrix()
+# users_positions=env.initialize_users_pos()
+# aps_positions=env.initialize_aps_pos()
+# state=initialize_state_matrix()
+
+
+
     #Write results to data files
+
+
+
+
+
+#Get index of user's state in Q table
+#state là 1 mảng gồm num_of_applications phần tử, mỗi phần tử chứa giá trị index của access point
+def convert_to_index (state):
+    num = 0;
+    for i in range(len(state)):
+        num += pow(NUM_OF_AP, i) * state[i]
+    return num
+
+def convert_from_index (i):
+    state = []
+    k = 0
+    while (k < NUM_OF_APP):
+        state.append(i % NUM_OF_AP)
+        i = int(i / NUM_OF_AP)
+        k += 1
+    state.reverse()
+    return state
+
+# state = list(map(int, input("Nhap list: ").split(" ")))
+# print(state)
+# i = int(input())
+# state = convert_from_index(i)
+# print(state)
