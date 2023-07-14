@@ -134,21 +134,22 @@ def r(h,AP_index,user_index):
 #suppose the transmit power not depend on application f of user k -> r_bkf depends on which user k of AP b is?
 #each frame has its r_bkf 
 #Simulating 10000 frames, determine the value of r_bkf in each frame
-NUM_OF_FRAME=100
-# list_of_r_from_0_to_t = [[] for i in range(NUM_OF_FRAME)]
-# file = open("data_r.txt", "w")
 
-# for i in range(NUM_OF_FRAME):
-#     file.writelines(' FRAME START! '.center(200,'=')+"\n")
-#     h=initialize_users_h(list_of_AP_pos=list_of_AP,list_of_user_pos=list_of_users)
-#     for b in range(NUM_OF_AP):
-#         for k in range(NUM_OF_USER):
-#             r_bkf = r(h,b, k, application_index=1)
-#             file.write(f"{str(round(r_bkf,5)): <20}")
-#             list_of_r_from_0_to_t[i].append(r_bkf)
-#         file.writelines("\n")
-#     file.writelines(' END OF FRAME! '.center(200,'=')+"\n\n")
+NUM_OF_FRAME=1000
+list_of_r_from_0_to_t = [[] for i in range(NUM_OF_FRAME)]
+file = open("data_r.txt", "w")
 
-# file.close()
+for i in range(NUM_OF_FRAME):
+    file.writelines(' FRAME START! '.center(200,'=')+"\n")
+    h=initialize_users_h(list_of_AP_pos=list_of_AP,list_of_user_pos=list_of_users)
+    for b in range(NUM_OF_AP):
+        for k in range(NUM_OF_USER):
+            r_bkf = r(h,b, k)
+            file.write(f"{str(round(r_bkf,5)): <20}")
+            list_of_r_from_0_to_t[i].append(r_bkf)
+        file.writelines("\n")
+    file.writelines(' END OF FRAME! '.center(200,'=')+"\n\n")
 
-# plt.show()
+file.close()
+
+plt.show()
