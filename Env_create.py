@@ -120,13 +120,13 @@ def r(h,AP_index,user_index):
 
 
 #Plot APs and Users Position
-plt.title("APs and Users Position")
-AP_x,AP_y=zip(*list_of_AP)
-User_x,User_y=zip(*list_of_users)
-plt.scatter(AP_x,AP_y,cmap='hot')
-plt.scatter(User_x,User_y,cmap='hot')
-plt.grid()
-plt.show(block=False)
+# plt.title("APs and Users Position")
+# AP_x,AP_y=zip(*list_of_AP)
+# User_x,User_y=zip(*list_of_users)
+# plt.scatter(AP_x,AP_y,cmap='hot')
+# plt.scatter(User_x,User_y,cmap='hot')
+# plt.grid()
+# plt.show(block=False)
 
 
 #the value of r_bkf is immediate
@@ -134,6 +134,7 @@ plt.show(block=False)
 #suppose the transmit power not depend on application f of user k -> r_bkf depends on which user k of AP b is?
 #each frame has its r_bkf 
 #Simulating 10000 frames, determine the value of r_bkf in each frame
+
 NUM_OF_FRAME=1000
 list_of_r_from_0_to_t = [[] for i in range(NUM_OF_FRAME)]
 file = open("data_r.txt", "w")
