@@ -1,5 +1,6 @@
 # Implementation of *Reinforcement Learning-aided Distributed User-to-Access Points Association in Interfering Networks*
 by Thi Ha Ly Dinh⇤ , Megumi Kaneko⇤ , Keisuke Wakao† , Hirantha Abeysekera † , Yasushi Takatori †
+
 **Discription:** This is a implementation of the paper using Python.
 
 ### Credits and reference
